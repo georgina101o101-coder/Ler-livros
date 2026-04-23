@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-// @ts-expect-error - worker imported as URL via Vite
 import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useContainerWidth } from "@/hooks/use-container-width";

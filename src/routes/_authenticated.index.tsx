@@ -20,10 +20,10 @@ export const Route = createFileRoute("/_authenticated/")({
   component: LibraryPage,
   head: () => ({
     meta: [
-      { title: "PDF Reader — Your Library" },
+      { title: "Leitor de PDF — Sua biblioteca" },
       {
         name: "description",
-        content: "Upload PDFs, read with fit-to-width, and pick up exactly where you left off.",
+        content: "Envie PDFs, leia com ajuste de largura e continue exatamente de onde parou.",
       },
     ],
   }),
@@ -97,16 +97,16 @@ function LibraryPage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-5">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-primary" />
-            <h1 className="text-lg font-semibold tracking-tight">PDF Reader</h1>
+            <h1 className="text-lg font-semibold tracking-tight">Leitor de PDF</h1>
           </div>
           <div className="flex items-center gap-2">
             <span className="hidden text-sm text-muted-foreground sm:inline">
               {user?.email}
             </span>
             <Button onClick={onPick} disabled={importing}>
-              <FileUp /> {importing ? "Importing…" : "Upload PDF"}
+              <FileUp /> {importing ? "Enviando…" : "Enviar PDF"}
             </Button>
-            <Button variant="ghost" size="icon" onClick={onLogout} aria-label="Sign out">
+            <Button variant="ghost" size="icon" onClick={onLogout} aria-label="Sair">
               <LogOut />
             </Button>
           </div>
@@ -123,7 +123,7 @@ function LibraryPage() {
 
       <main className="mx-auto max-w-5xl px-6 py-10">
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading library…</p>
+          <p className="text-sm text-muted-foreground">Carregando biblioteca…</p>
         ) : books.length === 0 ? (
           <div
             className="flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-border bg-background/60 p-16 text-center"
@@ -137,13 +137,13 @@ function LibraryPage() {
               <FileUp className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold">Your library is empty</h2>
+              <h2 className="text-xl font-semibold">Sua biblioteca está vazia</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Drop a PDF here or click upload to start reading.
+                Arraste um PDF aqui ou clique em enviar para começar a ler.
               </p>
             </div>
             <Button onClick={onPick}>
-              <FileUp /> Upload PDF
+              <FileUp /> Enviar PDF
             </Button>
           </div>
         ) : (
@@ -168,7 +168,7 @@ function LibraryPage() {
                         {file.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Page {page} of {file.totalPages} · {pct}%
+                        Página {page} de {file.totalPages} · {pct}%
                       </p>
                       <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-muted">
                         <div
@@ -186,13 +186,13 @@ function LibraryPage() {
                         navigate({ to: "/read/$fileId", params: { fileId: file.id } })
                       }
                     >
-                      {page > 1 ? "Resume" : "Open"}
+                      {page > 1 ? "Continuar" : "Abrir"}
                     </Button>
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={() => void remove(file.id)}
-                      aria-label="Remove from library"
+                      aria-label="Remover da biblioteca"
                     >
                       <Trash2 />
                     </Button>

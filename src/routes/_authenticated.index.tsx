@@ -2,19 +2,21 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-import { BookOpen, FileUp, Trash2 } from "lucide-react";
+import { BookOpen, FileUp, LogOut, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import {
   deleteFile,
-  getReadingProgress,
+  getProgressMap,
   listFiles,
   saveFile,
-  type PdfFileRecord,
+  type BookListItem,
 } from "@/lib/pdf-storage";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = PdfWorker as string;
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   component: LibraryPage,
   head: () => ({
     meta: [
@@ -23,22 +25,18 @@ export const Route = createFileRoute("/")({
         name: "description",
         content: "Upload PDFs, read with fit-to-width, and pick up exactly where you left off.",
       },
-      { property: "og:title", content: "PDF Reader — Your Library" },
-      {
-        property: "og:description",
-        content: "Upload PDFs, read with fit-to-width, and pick up exactly where you left off.",
-      },
     ],
   }),
 });
 
 interface BookEntry {
-  file: PdfFileRecord;
+  file: BookListItem;
   page: number;
 }
 
 function LibraryPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [books, setBooks] = useState<BookEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,12 +44,8 @@ function LibraryPage() {
 
   const refresh = useCallback(async () => {
     const files = await listFiles();
-    const entries = await Promise.all(
-      files
-        .sort((a, b) => b.addedAt - a.addedAt)
-        .map(async (f) => ({ file: f, page: (await getReadingProgress(f.id)).page })),
-    );
-    setBooks(entries);
+    const progress = await getProgressMap(files.map((f) => f.id));
+    setBooks(files.map((file) => ({ file, page: progress[file.id]?.page ?? 1 })));
     setLoading(false);
   }, []);
 
@@ -76,21 +70,11 @@ function LibraryPage() {
           console.error("Failed to parse PDF", e);
           continue;
         }
-        const id =
-          (typeof crypto !== "undefined" && "randomUUID" in crypto
-            ? crypto.randomUUID()
-            : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
-        const record: PdfFileRecord = {
-          id,
-          name: f.name,
-          size: f.size,
-          blob: new Blob([buf], { type: "application/pdf" }),
-          totalPages,
-          addedAt: Date.now(),
-        };
-        await saveFile(record);
+        await saveFile({ name: f.name, size: f.size, totalPages, data: buf });
       }
       await refresh();
+    } catch (e) {
+      console.error(e);
     } finally {
       setImporting(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -102,17 +86,30 @@ function LibraryPage() {
     await refresh();
   };
 
+  const onLogout = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/auth" });
+  };
+
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="border-b border-border bg-background">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-5">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-primary" />
             <h1 className="text-lg font-semibold tracking-tight">PDF Reader</h1>
           </div>
-          <Button onClick={onPick} disabled={importing}>
-            <FileUp /> {importing ? "Importing…" : "Upload PDF"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <span className="hidden text-sm text-muted-foreground sm:inline">
+              {user?.email}
+            </span>
+            <Button onClick={onPick} disabled={importing}>
+              <FileUp /> {importing ? "Importing…" : "Upload PDF"}
+            </Button>
+            <Button variant="ghost" size="icon" onClick={onLogout} aria-label="Sign out">
+              <LogOut />
+            </Button>
+          </div>
           <input
             ref={inputRef}
             type="file"

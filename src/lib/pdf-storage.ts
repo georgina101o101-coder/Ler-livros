@@ -132,7 +132,13 @@ export async function saveReadingProgress(
   if (!fileId || !Number.isFinite(page) || page < 1) return;
   try {
     const userId = await requireUserId();
-    const payload: Record<string, unknown> = {
+    const payload: {
+      book_id: string;
+      user_id: string;
+      page: number;
+      updated_at: string;
+      zoom?: number;
+    } = {
       book_id: fileId,
       user_id: userId,
       page,

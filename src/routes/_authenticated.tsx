@@ -12,7 +12,7 @@ function AuthenticatedLayout() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-muted/30 text-sm text-muted-foreground">
-        Loading…
+        Carregando…
       </div>
     );
   }

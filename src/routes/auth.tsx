@@ -11,8 +11,8 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
   head: () => ({
     meta: [
-      { title: "Sign in — PDF Reader" },
-      { name: "description", content: "Sign in or create your account to access your PDF library." },
+      { title: "Entrar — Leitor de PDF" },
+      { name: "description", content: "Entre ou crie sua conta para acessar sua biblioteca de PDFs." },
     ],
   }),
 });
@@ -52,14 +52,14 @@ function AuthPage() {
           options: { emailRedirectTo: `${window.location.origin}/` },
         });
         if (error) throw error;
-        setInfo("Account created. You can now sign in.");
+        setInfo("Conta criada. Agora você pode entrar.");
         setMode("signin");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
+      setError(e instanceof Error ? e.message : "Algo deu errado");
     } finally {
       setBusy(false);
     }
@@ -74,7 +74,7 @@ function AuthPage() {
       });
       if (result.error) throw result.error;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Google sign-in failed");
+      setError(e instanceof Error ? e.message : "Falha ao entrar com Google");
     } finally {
       setBusy(false);
     }
@@ -85,14 +85,14 @@ function AuthPage() {
       <div className="w-full max-w-sm rounded-2xl border border-border bg-background p-8 shadow-sm">
         <Link to="/" className="mb-6 flex items-center justify-center gap-2 text-primary">
           <BookOpen className="h-6 w-6" />
-          <span className="text-lg font-semibold tracking-tight text-foreground">PDF Reader</span>
+          <span className="text-lg font-semibold tracking-tight text-foreground">Leitor de PDF</span>
         </Link>
 
         <h1 className="text-center text-xl font-semibold">
-          {mode === "signin" ? "Welcome back" : "Create your account"}
+          {mode === "signin" ? "Bem-vindo de volta" : "Crie sua conta"}
         </h1>
         <p className="mt-1 text-center text-sm text-muted-foreground">
-          {mode === "signin" ? "Sign in to access your library." : "Start building your PDF library."}
+          {mode === "signin" ? "Entre para acessar sua biblioteca." : "Comece a montar sua biblioteca de PDFs."}
         </p>
 
         <Button
@@ -102,18 +102,18 @@ function AuthPage() {
           onClick={onGoogle}
           disabled={busy}
         >
-          <GoogleIcon /> Continue with Google
+          <GoogleIcon /> Continuar com Google
         </Button>
 
         <div className="my-5 flex items-center gap-3">
           <div className="h-px flex-1 bg-border" />
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">or</span>
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">ou</span>
           <div className="h-px flex-1 bg-border" />
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">E-mail</Label>
             <Input
               id="email"
               type="email"
@@ -124,7 +124,7 @@ function AuthPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Senha</Label>
             <Input
               id="password"
               type="password"
@@ -141,12 +141,12 @@ function AuthPage() {
 
           <Button type="submit" className="w-full" disabled={busy}>
             {busy && <Loader2 className="animate-spin" />}
-            {mode === "signin" ? "Sign in" : "Create account"}
+            {mode === "signin" ? "Entrar" : "Criar conta"}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          {mode === "signin" ? "Don't have an account?" : "Already have an account?"}{" "}
+          {mode === "signin" ? "Não tem uma conta?" : "Já tem uma conta?"}{" "}
           <button
             type="button"
             className="font-medium text-primary hover:underline"
@@ -156,7 +156,7 @@ function AuthPage() {
               setInfo(null);
             }}
           >
-            {mode === "signin" ? "Sign up" : "Sign in"}
+            {mode === "signin" ? "Cadastre-se" : "Entrar"}
           </button>
         </p>
       </div>

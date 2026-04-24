@@ -14,7 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      books: {
+        Row: {
+          added_at: string
+          id: string
+          name: string
+          size: number
+          storage_path: string
+          total_pages: number
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          name: string
+          size?: number
+          storage_path: string
+          total_pages?: number
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          name?: string
+          size?: number
+          storage_path?: string
+          total_pages?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reading_progress: {
+        Row: {
+          book_id: string
+          page: number
+          updated_at: string
+          user_id: string
+          zoom: number
+        }
+        Insert: {
+          book_id: string
+          page?: number
+          updated_at?: string
+          user_id: string
+          zoom?: number
+        }
+        Update: {
+          book_id?: string
+          page?: number
+          updated_at?: string
+          user_id?: string
+          zoom?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reading_progress_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: true
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

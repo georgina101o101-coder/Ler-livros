@@ -37,6 +37,10 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Leitor de PDF" },
+      { name: "twitter:description", content: "Leia seus PDFs com ajuste de largura e progresso salvo." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/03952cc1-a99e-47eb-8cca-65207b9cc3ce/id-preview-d42d28fe--76c9e362-1f9e-491f-bd7b-49e3bc1d3462.lovable.app-1777073002003.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/03952cc1-a99e-47eb-8cca-65207b9cc3ce/id-preview-d42d28fe--76c9e362-1f9e-491f-bd7b-49e3bc1d3462.lovable.app-1777073002003.png" },
     ],
     links: [
       {

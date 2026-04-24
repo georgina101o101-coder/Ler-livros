@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PdfReader } from "@/components/reader/PdfReader";
 import { getFile, type PdfFileRecord } from "@/lib/pdf-storage";
 
-export const Route = createFileRoute("/read/$fileId")({
+export const Route = createFileRoute("/_authenticated/read/$fileId")({
   component: ReadPage,
   head: () => ({
     meta: [
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/read/$fileId")({
 });
 
 function ReadPage() {
-  const { fileId } = useParams({ from: "/read/$fileId" });
+  const { fileId } = useParams({ from: "/_authenticated/read/$fileId" });
   const [file, setFile] = useState<PdfFileRecord | null | undefined>(undefined);
 
   useEffect(() => {

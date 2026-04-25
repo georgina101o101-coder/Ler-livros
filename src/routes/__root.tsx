@@ -1,6 +1,8 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
+import { InstallBanner } from "@/components/pwa/InstallBanner";
 
 function NotFoundComponent() {
   return (
@@ -32,6 +34,11 @@ export const Route = createRootRoute({
       { title: "Leitor de PDF" },
       { name: "description", content: "Leia seus PDFs com ajuste de largura e progresso salvo." },
       { name: "author", content: "Lovable" },
+      { name: "theme-color", content: "#1f4ed8" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "LerLivros" },
       { property: "og:title", content: "Leitor de PDF" },
       { property: "og:description", content: "Leia seus PDFs com ajuste de largura e progresso salvo." },
       { property: "og:type", content: "website" },
@@ -47,6 +54,10 @@ export const Route = createRootRoute({
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "manifest", href: "/manifest.json" },
+      { rel: "apple-touch-icon", href: "/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-512.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -69,5 +80,47 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) return;
+
+    // Detect Lovable preview / iframe — never register SW there.
+    const inIframe = (() => {
+      try {
+        return window.self !== window.top;
+      } catch {
+        return true;
+      }
+    })();
+    const host = window.location.hostname;
+    const isPreview =
+      host.includes("id-preview--") ||
+      host.includes("lovableproject.com") ||
+      host === "localhost" ||
+      host === "127.0.0.1";
+
+    if (inIframe || isPreview) {
+      // Clean up any previously registered SW in preview/iframe contexts.
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((regs) => regs.forEach((r) => r.unregister()))
+        .catch(() => {});
+      return;
+    }
+
+    const onLoad = () => {
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .catch((err) => console.warn("[pwa] SW registration failed", err));
+    };
+    if (document.readyState === "complete") onLoad();
+    else window.addEventListener("load", onLoad, { once: true });
+  }, []);
+
+  return (
+    <>
+      <Outlet />
+      <InstallBanner />
+    </>
+  );
 }

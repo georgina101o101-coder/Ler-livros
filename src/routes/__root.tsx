@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import appCss from "../styles.css?url";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
 import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
+import { OfflineBanner } from "@/components/pwa/OfflineBanner";
 import { useNotificationScheduler } from "@/hooks/use-notification-scheduler";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -123,6 +124,7 @@ function RootComponent() {
 
   return (
     <>
+      <OfflineBanner />
       <Outlet />
       <InstallBanner />
       <UpdatePrompt />

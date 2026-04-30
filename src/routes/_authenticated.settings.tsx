@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Bell, BellOff } from "lucide-react";
+import { ArrowLeft, Bell, BellOff, HardDrive, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,20 @@ import {
   getPagesReadToday,
   type NotifSettings,
 } from "@/lib/reading-notifications";
+import {
+  clearAllOfflineDownloads,
+  getOfflineUsage,
+  listFiles,
+  removeOfflineCopy,
+  type BookListItem,
+} from "@/lib/pdf-storage";
+
+function formatBytes(b: number): string {
+  if (b < 1024) return `${b} B`;
+  if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)} KB`;
+  if (b < 1024 * 1024 * 1024) return `${(b / 1024 / 1024).toFixed(1)} MB`;
+  return `${(b / 1024 / 1024 / 1024).toFixed(2)} GB`;
+}
 
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
@@ -28,11 +42,20 @@ function SettingsPage() {
   const [settings, setSettings] = useState<NotifSettings>(DEFAULT_SETTINGS);
   const [permission, setPermission] = useState<NotificationPermission>("default");
   const [pagesToday, setPagesToday] = useState(0);
+  const [usage, setUsage] = useState(0);
+  const [offlineBooks, setOfflineBooks] = useState<BookListItem[]>([]);
+
+  const refreshOffline = async () => {
+    setUsage(await getOfflineUsage());
+    const all = await listFiles();
+    setOfflineBooks(all.filter((b) => b.offline));
+  };
 
   useEffect(() => {
     setSettings(loadSettings());
     setPagesToday(getPagesReadToday());
     if (typeof Notification !== "undefined") setPermission(Notification.permission);
+    void refreshOffline();
   }, []);
 
   const update = (patch: Partial<NotifSettings>) => {
@@ -54,6 +77,18 @@ function SettingsPage() {
   };
 
   const time = `${String(settings.hour).padStart(2, "0")}:${String(settings.minute).padStart(2, "0")}`;
+
+  const onClearAll = async () => {
+    await clearAllOfflineDownloads();
+    toast.success("Downloads removidos");
+    await refreshOffline();
+  };
+
+  const onRemoveOne = async (id: string, name: string) => {
+    await removeOfflineCopy(id);
+    toast.success(`"${name}" removido do dispositivo`);
+    await refreshOffline();
+  };
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -125,6 +160,43 @@ function SettingsPage() {
               />
             </div>
           </div>
+        </section>
+
+        <section className="space-y-4 rounded-xl border border-border bg-background p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-base font-semibold">Armazenamento offline</h2>
+              <p className="text-sm text-muted-foreground">
+                {offlineBooks.length} {offlineBooks.length === 1 ? "livro baixado" : "livros baixados"} · {formatBytes(usage)}
+              </p>
+            </div>
+            <HardDrive className="h-5 w-5 text-muted-foreground" />
+          </div>
+
+          {offlineBooks.length > 0 && (
+            <ul className="divide-y divide-border rounded-lg border border-border">
+              {offlineBooks.map((b) => (
+                <li key={b.id} className="flex items-center justify-between gap-3 px-3 py-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium" title={b.name}>{b.name}</p>
+                    <p className="text-xs text-muted-foreground">{formatBytes(b.size)}</p>
+                  </div>
+                  <Button size="icon" variant="ghost" onClick={() => void onRemoveOne(b.id, b.name)} aria-label="Remover do dispositivo">
+                    <Trash2 />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => void onClearAll()}
+            disabled={offlineBooks.length === 0}
+          >
+            <Trash2 /> Remover todos os downloads
+          </Button>
         </section>
       </main>
     </div>

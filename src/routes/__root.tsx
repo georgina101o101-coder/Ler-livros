@@ -5,6 +5,7 @@ import appCss from "../styles.css?url";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
 import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
 import { useNotificationScheduler } from "@/hooks/use-notification-scheduler";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -125,6 +126,7 @@ function RootComponent() {
       <Outlet />
       <InstallBanner />
       <UpdatePrompt />
+      <Toaster />
     </>
   );
 }

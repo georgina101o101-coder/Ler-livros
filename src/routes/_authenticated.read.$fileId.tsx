@@ -39,8 +39,12 @@ function ReadPage() {
   if (file === null) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-muted/30 px-4 text-center">
-        <h1 className="text-2xl font-semibold">PDF não encontrado</h1>
-        <p className="text-sm text-muted-foreground">Este arquivo não está mais na sua biblioteca.</p>
+        <h1 className="text-2xl font-semibold">PDF indisponível</h1>
+        <p className="text-sm text-muted-foreground">
+          {typeof navigator !== "undefined" && !navigator.onLine
+            ? "Você está offline e este arquivo ainda não foi baixado para o dispositivo."
+            : "Este arquivo não está mais na sua biblioteca."}
+        </p>
         <Button asChild>
           <Link to="/">Voltar para a biblioteca</Link>
         </Button>

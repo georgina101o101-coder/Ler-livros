@@ -11,6 +11,8 @@ import {
 } from "@/lib/pdf-storage";
 import { ReaderToolbar } from "./ReaderToolbar";
 import { ProgressBar } from "./ProgressBar";
+import { usePageDwell } from "@/hooks/use-page-dwell";
+import { loadSettings, saveSettings } from "@/lib/reading-notifications";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = PdfWorker as string;
 
@@ -26,6 +28,26 @@ export function PdfReader({ file }: PdfReaderProps) {
   const [rendering, setRendering] = useState(true);
   const [fadeIn, setFadeIn] = useState(true);
   const [hydrated, setHydrated] = useState(false);
+
+  usePageDwell(file.id, currentPage);
+
+  // Ask for notification permission once, on first PDF open after this update.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (typeof Notification === "undefined") return;
+    const s = loadSettings();
+    if (s.permissionAsked) return;
+    if (Notification.permission !== "default") {
+      saveSettings({ ...s, permissionAsked: true });
+      return;
+    }
+    const t = setTimeout(() => {
+      Notification.requestPermission().finally(() => {
+        saveSettings({ ...loadSettings(), permissionAsked: true });
+      });
+    }, 1500);
+    return () => clearTimeout(t);
+  }, []);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const renderTaskRef = useRef<ReturnType<pdfjsLib.PDFPageProxy["render"]> | null>(null);

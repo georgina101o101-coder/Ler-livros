@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-import { BookOpen, FileUp, LogOut, Trash2 } from "lucide-react";
+import { BookOpen, FileUp, LogOut, Settings as SettingsIcon, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -105,6 +105,9 @@ function LibraryPage() {
             </span>
             <Button onClick={onPick} disabled={importing}>
               <FileUp /> {importing ? "Enviando…" : "Enviar PDF"}
+            </Button>
+            <Button asChild variant="ghost" size="icon" aria-label="Configurações">
+              <Link to="/settings"><SettingsIcon /></Link>
             </Button>
             <Button variant="ghost" size="icon" onClick={onLogout} aria-label="Sair">
               <LogOut />

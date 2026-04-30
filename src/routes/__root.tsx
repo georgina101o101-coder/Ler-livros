@@ -3,6 +3,9 @@ import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
+import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
+import { useNotificationScheduler } from "@/hooks/use-notification-scheduler";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -80,6 +83,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  useNotificationScheduler();
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("serviceWorker" in navigator)) return;
@@ -121,6 +125,8 @@ function RootComponent() {
     <>
       <Outlet />
       <InstallBanner />
+      <UpdatePrompt />
+      <Toaster />
     </>
   );
 }

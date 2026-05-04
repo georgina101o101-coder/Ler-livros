@@ -13,6 +13,7 @@ import { ReaderToolbar } from "./ReaderToolbar";
 import { ProgressBar } from "./ProgressBar";
 import { usePageDwell } from "@/hooks/use-page-dwell";
 import { loadSettings, saveSettings } from "@/lib/reading-notifications";
+import { HighlightLayer } from "./HighlightLayer";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = PdfWorker as string;
 
@@ -50,6 +51,8 @@ export function PdfReader({ file }: PdfReaderProps) {
   }, []);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const textLayerRef = useRef<HTMLDivElement | null>(null);
+  const [pageViewportSize, setPageViewportSize] = useState<{ w: number; h: number } | null>(null);
   const renderTaskRef = useRef<ReturnType<pdfjsLib.PDFPageProxy["render"]> | null>(null);
   const { ref: containerRef, width: containerWidth } = useContainerWidth<HTMLDivElement>();
 
@@ -108,6 +111,30 @@ export function PdfReader({ file }: PdfReaderProps) {
       const task = page.render({ canvasContext: ctx, viewport, transform });
       renderTaskRef.current = task;
       await task.promise;
+
+      // Render text layer for native text selection.
+      const textLayerDiv = textLayerRef.current;
+      if (textLayerDiv) {
+        textLayerDiv.replaceChildren();
+        textLayerDiv.style.width = `${Math.floor(viewport.width)}px`;
+        textLayerDiv.style.height = `${Math.floor(viewport.height)}px`;
+        textLayerDiv.style.setProperty("--scale-factor", String(viewport.scale));
+        try {
+          const textLayer = new (pdfjsLib as unknown as { TextLayer: new (opts: {
+            textContentSource: ReturnType<pdfjsLib.PDFPageProxy["streamTextContent"]>;
+            container: HTMLElement;
+            viewport: pdfjsLib.PageViewport;
+          }) => { render: () => Promise<void> } }).TextLayer({
+            textContentSource: page.streamTextContent(),
+            container: textLayerDiv,
+            viewport,
+          });
+          await textLayer.render();
+        } catch (err) {
+          console.warn("[PdfReader] textLayer render failed", err);
+        }
+      }
+      setPageViewportSize({ w: Math.floor(viewport.width), h: Math.floor(viewport.height) });
       setRendering(false);
       // Trigger fade-in
       setFadeIn(false);
@@ -252,8 +279,24 @@ export function PdfReader({ file }: PdfReaderProps) {
               className={`mx-auto overflow-hidden rounded-lg bg-background shadow-[0_10px_40px_-15px_rgba(0,0,0,0.25)] ring-1 ring-border/60 transition-opacity duration-200 ${
                 fadeIn && !rendering ? "opacity-100" : "opacity-60"
               }`}
+              style={{ position: "relative", width: pageViewportSize?.w, maxWidth: "100%" }}
             >
               <canvas ref={canvasRef} className="block max-w-full" />
+              {pageViewportSize && (
+                <>
+                  <HighlightLayer
+                    bookId={file.id}
+                    pageNumber={currentPage}
+                    width={pageViewportSize.w}
+                    height={pageViewportSize.h}
+                  />
+                  <div
+                    ref={textLayerRef}
+                    className="textLayer absolute inset-0 select-text"
+                    style={{ width: pageViewportSize.w, height: pageViewportSize.h }}
+                  />
+                </>
+              )}
             </div>
             {rendering && containerWidth > 0 && (
               <Skeleton

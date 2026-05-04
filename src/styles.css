@@ -1,4 +1,29 @@
 @import "tailwindcss" source(none);
+
+/* PDF text layer — transparent overlay above canvas to enable native text selection. */
+.textLayer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 1;
+  line-height: 1;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  z-index: 2;
+  cursor: text;
+}
+.textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0 0;
+}
+.textLayer ::selection {
+  background: rgba(255, 220, 0, 0.35);
+}
 @source "../src";
 @import "tw-animate-css";
 

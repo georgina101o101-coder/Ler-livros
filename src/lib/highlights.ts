@@ -47,15 +47,16 @@ export async function createHighlight(input: {
   color?: string;
 }): Promise<HighlightRecord | null> {
   const { data: userRes } = await supabase.auth.getUser();
-  const userId = userRes.user?.id ?? null;
+  const userId = userRes.user?.id;
+  if (!userId) return null;
   const { data, error } = await supabase
     .from("highlights")
     .insert({
-      user_id: userId as string,
+      user_id: userId,
       book_id: input.bookId,
       page_number: input.pageNumber,
       text_selected: input.textSelected,
-      rectangles: input.rectangles as unknown as object,
+      rectangles: input.rectangles as unknown as never,
       color: input.color ?? "yellow",
     })
     .select("id,book_id,page_number,text_selected,rectangles,color,created_at")

@@ -44,24 +44,93 @@ export type Database = {
         }
         Relationships: []
       }
+      highlights: {
+        Row: {
+          book_id: string
+          color: string
+          created_at: string
+          id: string
+          page_number: number
+          rectangles: Json
+          text_selected: string
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          color?: string
+          created_at?: string
+          id?: string
+          page_number: number
+          rectangles?: Json
+          text_selected?: string
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          color?: string
+          created_at?: string
+          id?: string
+          page_number?: number
+          rectangles?: Json
+          text_selected?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_notified_at: string | null
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_notified_at?: string | null
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_notified_at?: string | null
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       reading_progress: {
         Row: {
           book_id: string
+          last_read_at: string
           page: number
+          pages_read_today: number
           updated_at: string
           user_id: string
           zoom: number
         }
         Insert: {
           book_id: string
+          last_read_at?: string
           page?: number
+          pages_read_today?: number
           updated_at?: string
           user_id: string
           zoom?: number
         }
         Update: {
           book_id?: string
+          last_read_at?: string
           page?: number
+          pages_read_today?: number
           updated_at?: string
           user_id?: string
           zoom?: number

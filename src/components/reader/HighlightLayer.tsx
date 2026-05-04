@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createHighlight,
-  deleteHighlight,
   listHighlights,
   type HighlightRecord,
   type HighlightRect,
@@ -111,11 +110,6 @@ export function HighlightLayer({ bookId, pageNumber, width, height }: Props) {
     if (created) setHighlights((prev) => [...prev, created]);
     window.getSelection()?.removeAllRanges();
     setPending(null);
-  };
-
-  const onRemove = async (id: string) => {
-    setHighlights((prev) => prev.filter((h) => h.id !== id));
-    await deleteHighlight(id);
   };
 
   return (

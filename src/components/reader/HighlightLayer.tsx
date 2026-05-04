@@ -126,15 +126,10 @@ export function HighlightLayer({ bookId, pageNumber, width, height }: Props) {
     >
       {pageHighlights.map((h) =>
         h.rectangles.map((r, i) => (
-          <button
+          <div
             key={`${h.id}-${i}`}
-            type="button"
             title={h.textSelected}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (window.confirm("Remover esta marcação?")) void onRemove(h.id);
-            }}
-            className="pointer-events-auto absolute cursor-pointer rounded-[2px] bg-yellow-300/45 mix-blend-multiply transition-colors hover:bg-yellow-400/60"
+            className="absolute rounded-[2px] bg-yellow-300/50 mix-blend-multiply"
             style={{
               left: `${r.x * 100}%`,
               top: `${r.y * 100}%`,
@@ -147,7 +142,7 @@ export function HighlightLayer({ bookId, pageNumber, width, height }: Props) {
 
       {pending && (
         <div
-          className="pointer-events-auto absolute z-10 -translate-x-1/2"
+          className="pointer-events-auto absolute z-20 -translate-x-1/2"
           style={{ left: pending.anchor.x, top: pending.anchor.y }}
         >
           <button
